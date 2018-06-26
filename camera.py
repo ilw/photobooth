@@ -71,8 +71,13 @@ class Camera_cv:
             # Pick the video resolution to capture at.
             # If requested resolution is too high, OpenCV uses next best.
             # (E.g., 10000x10000 will force highest camera resolution).
-            self.cap.set(cv.cv.CV_CAP_PROP_FRAME_WIDTH,  resolution[0])
-            self.cap.set(cv.cv.CV_CAP_PROP_FRAME_HEIGHT, resolution[1])
+            #Test if opencv 2 or 3 is being used
+            if hasattr(cv, 'cv'):
+                self.cap.set(cv.cv.CV_CAP_PROP_FRAME_WIDTH,  resolution[0])
+                self.cap.set(cv.cv.CV_CAP_PROP_FRAME_HEIGHT, resolution[1])                
+            else:
+                self.cap.set(cv.CAP_PROP_FRAME_WIDTH,  resolution[0])
+                self.cap.set(cv.CAP_PROP_FRAME_HEIGHT, resolution[1])
 
             # Warm up web cam for quick start later and to double check driver
             r, dummy = self.cap.read()
@@ -84,8 +89,12 @@ class Camera_cv:
             print "Connecting to camera using opencv"
 
             # Print the capabilities of the connected camera
-            w=self.cap.get(cv.cv.CV_CAP_PROP_FRAME_WIDTH)
-            h=self.cap.get(cv.cv.CV_CAP_PROP_FRAME_HEIGHT)
+            if hasattr(cv, 'cv'):
+                w=self.cap.get(cv.cv.CV_CAP_PROP_FRAME_WIDTH)
+                h=self.cap.get(cv.cv.CV_CAP_PROP_FRAME_HEIGHT)
+            else:
+                w=self.cap.get(cv.CAP_PROP_FRAME_WIDTH)
+                h=self.cap.get(cv.CAP_PROP_FRAME_HEIGHT)
             if w and h:
                 print("Camera detected as %d x %d" % (w, h))
 
