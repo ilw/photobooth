@@ -17,6 +17,7 @@ from camera import CameraException, Camera_cv as CameraModule
 #from camera import CameraException, Camera_gPhoto as CameraModule
 from slideshow import Slideshow
 from events import Rpi_GPIO as GPIO
+from shutil import copy2
 
 # Printing depends on the optional python-cups module
 try:
@@ -88,7 +89,7 @@ if os.access("/dev/shm", os.W_OK):
     tmp_dir = "/dev/shm/"       # Don't abuse Raspberry Pi SD card, if possible
 else:
     tmp_dir = "/tmp/"
-    
+
 
 ###############
 ### Classes ###
@@ -768,6 +769,7 @@ class Photobooth:
 
         # Assemble them
         outfile = self.assemble_pictures(filenames)
+        self.save_raws(outfile,filenames)
 
         if self.printer_module.can_print():
             # Show picture for 10 seconds and then send it to the printer.
@@ -827,6 +829,12 @@ class Photobooth:
         self.gpio.set_output(self.lamp_channel, 1)
 
 
+    def save_raws(self,basename, input_filenames):
+        file_count=0
+        for f in input_filenames:
+            copy2(f,basename + str(file_count) + ".jpg")
+            file_count = file_count + 1
+            
 
 
 #################
