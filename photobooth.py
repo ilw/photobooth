@@ -39,11 +39,11 @@ display_size = (0, 0)
 
 # Is the monitor on its side? (For portrait photos on landscape monitors).
 # If True, text will be rotated 90 degrees counterclockwise
-display_rotate = True
+display_rotate = False
 
 # Is the camera on its side? (For portrait orientation. Note: EXIF is ignored!)
 # If True, the "right" side of the photo will be assumed to be the actual top.
-camera_rotate = True
+camera_rotate = False
 
 # Final size of assembled image (the montage of four thumbnails).
 # If printing, this should be same aspect ratio as the printer page.
@@ -66,7 +66,7 @@ gpio_lamp_channel = 4 # pin 7 in all Raspi-Versions, (pin 9 is a handy GND)
 pose_time = 3
 
 # Display time for assembled picture
-display_time = 10
+display_time = 3
 
 # Show a slideshow of existing pictures when idle
 idle_slideshow = True
@@ -518,41 +518,60 @@ class Photobooth:
             (W, H) = self.pic_size
 
         # Thumbnail size of pictures
-        outer_border = int( 2 * max(W,H) / 100 ) # 2% of long edge
+        outer_border = int( 2 * max(W,H) / 1000 ) # 2% of long edge
         inner_border = int( 1 * max(W,H) / 100 ) # 1% of long edge
-        thumb_box = ( int( W / 2 ) ,
+        thumb_box = ( int( W / 4 ) ,
                       int( H / 2 ) )
         thumb_size = ( thumb_box[0] - outer_border - inner_border ,
                        thumb_box[1] - outer_border - inner_border )
+        print ("W is " +  str(W) + " H is " + str(H) + "thumb_box" + str(thumb_box[0]) + str(thumb_box[1]) + "thumb_size" + str(thumb_size[0])  + str(thumb_size[1]))
 
         # Create output image with white background
         output_image = Image.new('RGB', (W, H), (255, 255, 255))
 
         # Image 0
         img = Image.open(input_filenames[0])
+        img = img.rotate(90)
+        print(str(img.size[0]) + str(img.size[1]))
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
+        print(str(img.size[0]) + str(img.size[1]))
         offset = ( thumb_box[0] - inner_border - img.size[0] ,
                    thumb_box[1] - inner_border - img.size[1] )
         output_image.paste(img, offset)
-
+        offset = ( thumb_box[0] - inner_border - img.size[0] ,
+                   thumb_box[1] + inner_border )
+        output_image.paste(img, offset)
+        
         # Image 1
         img = Image.open(input_filenames[1])
+        img = img.rotate(90)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
-        offset = ( thumb_box[0] + inner_border,
+        offset = ( 2*thumb_box[0] - inner_border - img.size[0] ,
                    thumb_box[1] - inner_border - img.size[1] )
+        output_image.paste(img, offset)
+        offset = ( 2*thumb_box[0] - inner_border - img.size[0] ,
+                   thumb_box[1] + inner_border )
         output_image.paste(img, offset)
 
         # Image 2
         img = Image.open(input_filenames[2])
+        img = img.rotate(90)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
-        offset = ( thumb_box[0] - inner_border - img.size[0] ,
+        offset = ( 3*thumb_box[0] - inner_border - img.size[0] ,
+                   thumb_box[1] - inner_border - img.size[1] )
+        output_image.paste(img, offset)
+        offset = ( 3*thumb_box[0] - inner_border - img.size[0] ,
                    thumb_box[1] + inner_border )
         output_image.paste(img, offset)
 
         # Image 3
         img = Image.open(input_filenames[3])
+        img = img.rotate(90)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
-        offset = ( thumb_box[0] + inner_border ,
+        offset = ( 4*thumb_box[0] - inner_border - img.size[0] ,
+                   thumb_box[1] - inner_border - img.size[1] )
+        output_image.paste(img, offset)
+        offset = ( 4*thumb_box[0] - inner_border - img.size[0] ,
                    thumb_box[1] + inner_border )
         output_image.paste(img, offset)
 
