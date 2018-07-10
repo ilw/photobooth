@@ -520,7 +520,9 @@ class Photobooth:
         # Thumbnail size of pictures
         outer_border = int( 2 * max(W,H) / 100 ) # 2% of long edge
         inner_border = int( 1 * max(W,H) / 100 ) # 1% of long edge
-        thumb_box = ( int( W / 4 ) ,
+        #reserve 150 pixels for text
+        text_height = 150
+        thumb_box = ( int( (W-text_height) / 4 ) ,
                       int( H / 2 ) )
         thumb_size = ( thumb_box[0] - outer_border - inner_border ,
                        thumb_box[1] - outer_border - inner_border )
@@ -594,6 +596,13 @@ class Photobooth:
         offset = ( 4*thumb_box[0] - inner_border - img.size[0] ,
                    int(1.5 * thumb_box[1] + inner_border - img.size[1]/2))
         output_image.paste(img, offset)
+        img = Image.open("/home/pi/photobooth2/photobooth/bottom_sm.jpg")
+        #w,h = img.size
+        #print ("Text size is " + str(w) + " " + str(h))
+        #img = img.resize(maxpect(img.size, (text_height,thumb_box[1])),Image.ANTIALIAS)
+        output_image.paste(img,(4*thumb_box[0], int((thumb_box[1] - inner_border - img.size[1])/2) ))
+        output_image.paste(img,(4*thumb_box[0], int(1.5 * thumb_box[1] + inner_border - img.size[1]/2)))
+
 
         # Save assembled image
         output_filename = self.pictures.get_next()
