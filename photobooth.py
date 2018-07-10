@@ -518,7 +518,7 @@ class Photobooth:
             (W, H) = self.pic_size
 
         # Thumbnail size of pictures
-        outer_border = int( 2 * max(W,H) / 1000 ) # 2% of long edge
+        outer_border = int( 2 * max(W,H) / 100 ) # 2% of long edge
         inner_border = int( 1 * max(W,H) / 100 ) # 1% of long edge
         thumb_box = ( int( W / 4 ) ,
                       int( H / 2 ) )
@@ -531,48 +531,68 @@ class Photobooth:
 
         # Image 0
         img = Image.open(input_filenames[0])
-        img = img.rotate(90)
-        print(str(img.size[0]) + str(img.size[1]))
+        w,h = img.size
+        sq = min(w,h)
+        #print("width and height " + str(w) + " " + str(h))
+        img = img.crop((w/2-sq/2,0,w/2+sq/2,h))
+        img.load()
+        img = img.rotate(90,expand=True)
+        #print(str(img.size[0]) + str(img.size[1]))
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
-        print(str(img.size[0]) + str(img.size[1]))
+        #print(str(img.size[0]) + str(img.size[1]))
         offset = ( thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] - inner_border - img.size[1] )
+                   int((thumb_box[1] - inner_border - img.size[1])/2) )
         output_image.paste(img, offset)
         offset = ( thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] + inner_border )
+                   int(1.5 * thumb_box[1] + inner_border - img.size[1]/2))
         output_image.paste(img, offset)
         
         # Image 1
         img = Image.open(input_filenames[1])
-        img = img.rotate(90)
+        w,h = img.size
+        sq = min(w,h)
+        #print("width and height " + str(w) + " " + str(h))
+        img = img.crop((w/2-sq/2,0,w/2+sq/2,h))
+        img.load()
+        img = img.rotate(90,expand=True)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
         offset = ( 2*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] - inner_border - img.size[1] )
+                   int((thumb_box[1] - inner_border - img.size[1])/2) )
         output_image.paste(img, offset)
         offset = ( 2*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] + inner_border )
+                   int(1.5 * thumb_box[1] + inner_border - img.size[1]/2))
         output_image.paste(img, offset)
 
         # Image 2
         img = Image.open(input_filenames[2])
-        img = img.rotate(90)
+        w,h = img.size
+        sq = min(w,h)
+        #print("width and height " + str(w) + " " + str(h))
+        img = img.crop((w/2-sq/2,0,w/2+sq/2,h))
+        img.load()
+        img = img.rotate(90,expand=True)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
         offset = ( 3*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] - inner_border - img.size[1] )
+                   int((thumb_box[1] - inner_border - img.size[1])/2) )
         output_image.paste(img, offset)
         offset = ( 3*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] + inner_border )
+                   int(1.5 * thumb_box[1] + inner_border - img.size[1]/2))
         output_image.paste(img, offset)
 
         # Image 3
         img = Image.open(input_filenames[3])
-        img = img.rotate(90)
+        w,h = img.size
+        sq = min(w,h)
+        #print("width and height " + str(w) + " " + str(h))
+        img = img.crop((w/2-sq/2,0,w/2+sq/2,h))
+        img.load()
+        img = img.rotate(90,expand=True)
         img = img.resize(maxpect(img.size, thumb_size), Image.ANTIALIAS)
         offset = ( 4*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] - inner_border - img.size[1] )
+                   int((thumb_box[1] - inner_border - img.size[1])/2) )
         output_image.paste(img, offset)
         offset = ( 4*thumb_box[0] - inner_border - img.size[0] ,
-                   thumb_box[1] + inner_border )
+                   int(1.5 * thumb_box[1] + inner_border - img.size[1]/2))
         output_image.paste(img, offset)
 
         # Save assembled image
@@ -591,6 +611,11 @@ class Photobooth:
         self.display.clear()
         if self.camera.has_preview():
             f = self.camera.get_preview_array(self.display.get_size())
+            #Adding black bars to the sides to create a square image
+            x,y,d = f.shape
+            sq = min(x,y)
+            f[:x/2-sq/2,:]=(0,0,0)
+            f[x/2+sq/2:,:]=(0,0,0)
             self.display.blit_array(f)
         self.display.show_message(message)
         self.display.apply()
